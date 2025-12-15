@@ -1,0 +1,305 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Franklin Spicer | Resume</title>
+
+  <!-- Bootstrap -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+
+  <style>
+    :root{
+      --ink:#0f172a;
+      --muted:#475569;
+      --bg:#f6f7fb;
+      --card:#ffffff;
+      --line:#e7eaf0;
+      --brand:#1d4ed8;
+      --accent:#0ea5e9;
+      --shadow: 0 12px 28px rgba(15,23,42,.08);
+      --radius: 20px;
+      --navH: 76px;
+    }
+
+    html { scroll-behavior: smooth; }
+    section { scroll-margin-top: calc(var(--navH) + 20px); }
+
+    body{
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+      color: var(--ink);
+      background:
+        radial-gradient(1200px 600px at 10% -10%, rgba(29,78,216,.10), transparent 55%),
+        radial-gradient(900px 500px at 90% -10%, rgba(14,165,233,.10), transparent 55%),
+        var(--bg);
+    }
+
+    /* NAV */
+    .navbar{
+      background: rgba(246,247,251,.85);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid rgba(231,234,240,.9);
+    }
+
+    .brand-dot{
+      width:10px;height:10px;border-radius:999px;
+      background: linear-gradient(135deg, var(--brand), var(--accent));
+      display:inline-block;margin-right:.5rem;
+      box-shadow:0 6px 14px rgba(29,78,216,.25);
+    }
+
+    /* HERO */
+    .hero{
+      background: linear-gradient(180deg, rgba(255,255,255,.92), rgba(255,255,255,.78));
+      border:1px solid rgba(231,234,240,.95);
+      border-radius: calc(var(--radius) + 8px);
+      box-shadow: var(--shadow);
+    }
+
+    .subtitle{
+      color:var(--muted);
+      max-width:42rem;
+    }
+
+    .pill{
+      display:inline-flex;
+      align-items:center;
+      gap:.5rem;
+      padding:.45rem .75rem;
+      border-radius:999px;
+      background:rgba(255,255,255,.9);
+      border:1px solid rgba(231,234,240,.95);
+      color:var(--muted);
+      font-size:.9rem;
+    }
+
+    /* SECTIONS */
+    .cardish{
+      background:rgba(255,255,255,.95);
+      border:1px solid rgba(231,234,240,.95);
+      border-radius:var(--radius);
+      box-shadow: var(--shadow);
+    }
+
+    .section-title{
+      display:flex;
+      align-items:center;
+      gap:.75rem;
+      font-weight:700;
+      letter-spacing:.2px;
+      margin-bottom:1.25rem;
+    }
+
+    .section-icon{
+      width:38px;height:38px;
+      display:grid;place-items:center;
+      border-radius:14px;
+      background: linear-gradient(135deg, rgba(29,78,216,.12), rgba(14,165,233,.10));
+      border:1px solid rgba(231,234,240,.95);
+      color:var(--brand);
+    }
+
+    .item + .item{
+      border-top:1px dashed rgba(231,234,240,.95);
+      margin-top:1.4rem;
+      padding-top:1.4rem;
+    }
+
+    .meta{
+      color:var(--muted);
+      font-size:.95rem;
+    }
+
+    ul.clean{
+      margin:.6rem 0 0;
+      padding-left:1.25rem;
+    }
+
+    ul.clean li{
+      margin-bottom:.35rem;
+    }
+
+    ul.clean li::marker{
+      color:rgba(29,78,216,.55);
+    }
+
+    /* SIDE NAV */
+    .mini-nav{
+      position:sticky;
+      top:calc(var(--navH) + 20px);
+    }
+
+    .mini-nav a{
+      display:block;
+      padding:.6rem .8rem;
+      border-radius:14px;
+      margin-bottom:.5rem;
+      text-decoration:none;
+      color:var(--muted);
+      background:rgba(255,255,255,.88);
+      border:1px solid rgba(231,234,240,.95);
+      transition:.15s ease;
+    }
+
+    .mini-nav a:hover{
+      color:var(--ink);
+      border-color:rgba(29,78,216,.35);
+      transform:translateY(-1px);
+    }
+
+    footer{
+      color:var(--muted);
+      font-size:.85rem;
+    }
+
+    @media print{
+      .navbar,.mini-nav,.no-print{display:none!important;}
+      body{background:#fff;}
+      .cardish,.hero{box-shadow:none;}
+    }
+  </style>
+</head>
+
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar navbar-expand-lg sticky-top py-3">
+  <div class="container">
+    <a class="navbar-brand fw-semibold" href="index.html">
+      <span class="brand-dot"></span> Franklin Spicer
+    </a>
+
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#nav">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse" id="nav">
+      <ul class="navbar-nav ms-auto gap-lg-2 align-items-lg-center">
+        <li class="nav-item"><a class="nav-link" href="#education">Education</a></li>
+        <li class="nav-item"><a class="nav-link" href="#experience">Experience</a></li>
+        <li class="nav-item"><a class="nav-link" href="#leadership">Leadership</a></li>
+        <li class="nav-item"><a class="nav-link" href="#skills">Skills</a></li>
+        <li class="nav-item"><a class="nav-link" href="webapp.html">Web App</a></li>
+        <li class="nav-item"><a class="nav-link" href="scratch.html">Scratch Page</a></li>
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<main class="container py-5">
+
+  <!-- HERO -->
+  <div class="hero p-4 p-md-5 mb-4">
+    <h1 class="display-6 fw-bold mb-2">Franklin Spicer</h1>
+    <p class="subtitle mb-3">
+      Marketing student with experience in athletics marketing, fan engagement,
+      student organization leadership, and social media growth.
+    </p>
+    <div class="d-flex flex-wrap gap-2">
+      <span class="pill"><i class="bi bi-mortarboard"></i> BYU Marriott School of Business</span>
+      <span class="pill"><i class="bi bi-graph-up"></i> Marketing</span>
+      <span class="pill"><i class="bi bi-people"></i> Fan Experience</span>
+    </div>
+  </div>
+
+  <div class="row g-4">
+    <!-- SIDE NAV -->
+    <aside class="col-lg-3 d-none d-lg-block">
+      <div class="mini-nav">
+        <a href="#education">Education</a>
+        <a href="#experience">Experience</a>
+        <a href="#leadership">Leadership & Service</a>
+        <a href="#skills">Awards & Skills</a>
+      </div>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <section class="col-lg-9">
+
+      <!-- EDUCATION -->
+      <section id="education" class="cardish p-4 p-md-5 mb-4">
+        <div class="section-title">
+          <div class="section-icon"><i class="bi bi-mortarboard"></i></div>
+          Education
+        </div>
+
+        <div class="item">
+          <strong>Brigham Young University — Marriott School of Business</strong>
+          <div class="meta">B.S. in Marketing • Expected Apr 2028</div>
+        </div>
+
+        <div class="item">
+          <strong>Idaho State University — College of Business</strong>
+          <div class="meta">A.S. in Business • GPA 3.59 • Cum Laude</div>
+        </div>
+      </section>
+
+      <!-- EXPERIENCE -->
+      <section id="experience" class="cardish p-4 p-md-5 mb-4">
+        <div class="section-title">
+          <div class="section-icon"><i class="bi bi-briefcase"></i></div>
+          Experience
+        </div>
+
+        <div class="item">
+          <strong>BYU Athletics — Marketing & Fan Experience Intern</strong>
+          <ul class="clean">
+            <li>Planned and executed themed volleyball game experiences.</li>
+            <li>Supported in-game promotions for 15+ events.</li>
+            <li>Analyzed attendance data to evaluate campaign effectiveness.</li>
+          </ul>
+        </div>
+
+        <div class="item">
+          <strong>Idaho State Athletics — Student Marketing Intern</strong>
+          <ul class="clean">
+            <li>Managed game-day operations for crowds up to 10,000.</li>
+            <li>Increased social media engagement by 30%.</li>
+            <li>Planned student events driving up to 100% attendance growth.</li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- LEADERSHIP -->
+      <section id="leadership" class="cardish p-4 p-md-5 mb-4">
+        <div class="section-title">
+          <div class="section-icon"><i class="bi bi-people"></i></div>
+          Leadership & Service
+        </div>
+
+        <ul class="clean">
+          <li>Founder & President — The Jungle Student Section (5,000+ followers)</li>
+          <li>Founder & Vice President — Tau Kappa Epsilon Gamma-Eta</li>
+          <li>Founder — Management Consulting Association</li>
+        </ul>
+      </section>
+
+      <!-- SKILLS -->
+      <section id="skills" class="cardish p-4 p-md-5">
+        <div class="section-title">
+          <div class="section-icon"><i class="bi bi-award"></i></div>
+          Awards & Skills
+        </div>
+
+        <ul class="clean">
+          <li>Adobe Photoshop (Proficient)</li>
+          <li>Idaho 5A District IV-V High Jump Champion</li>
+          <li>DIII Texas State Champion (Rugby)</li>
+        </ul>
+      </section>
+
+      <footer class="text-center mt-4">
+        © <span id="year"></span> Franklin Spicer
+      </footer>
+    </section>
+  </div>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+
+</body>
+</html>

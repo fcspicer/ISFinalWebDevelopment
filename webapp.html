@@ -1,0 +1,1473 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Holy War Chess — BYU vs Utah</title>
+  <style>
+    :root{
+      --bg:#0b1220;
+      --panel: rgba(255,255,255,.06);
+      --panel2: rgba(255,255,255,.08);
+      --line: rgba(255,255,255,.10);
+      --text:#e8eefc;
+      --muted: rgba(232,238,252,.75);
+
+      /* Teams */
+      --byu:#0a2d6d;       /* royal-ish blue */
+      --byu2:#1a5cff;      /* accent */
+      --ute:#b0122b;       /* Utah red */
+      --ute2:#ff3b5e;      /* accent */
+
+      /* Board */
+      --light:#e6ebf6;
+      --dark:#b8c4dd;
+      --hilite: #ffe08a;
+      --shadow: 0 18px 40px rgba(0,0,0,.35);
+      --radius: 18px;
+
+      --square: clamp(44px, 8.5vw, 72px);
+    }
+
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+      color: var(--text);
+      background:
+        radial-gradient(1100px 600px at 15% -10%, rgba(26,92,255,.20), transparent 55%),
+        radial-gradient(900px 520px at 85% -15%, rgba(255,59,94,.16), transparent 60%),
+        radial-gradient(800px 500px at 50% 110%, rgba(255,224,138,.10), transparent 55%),
+        var(--bg);
+    }
+
+    a{color:inherit}
+    .wrap{
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 22px 16px 40px;
+    }
+
+    /* Top bar */
+    .topbar{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:14px;
+      padding: 14px 16px;
+      border: 1px solid var(--line);
+      background: linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.05));
+      border-radius: calc(var(--radius) + 6px);
+      box-shadow: var(--shadow);
+    }
+    .brand{
+      display:flex;
+      align-items:center;
+      gap:12px;
+      min-width: 220px;
+    }
+    .dot{
+      width:12px;height:12px;border-radius:999px;
+      background: linear-gradient(135deg, var(--byu2), var(--ute2));
+      box-shadow: 0 10px 20px rgba(0,0,0,.28);
+    }
+    .brand h1{
+      margin:0;
+      font-size: 1.02rem;
+      letter-spacing:.2px;
+      font-weight: 760;
+    }
+    .brand .sub{
+      margin:2px 0 0;
+      color: var(--muted);
+      font-size:.86rem;
+    }
+
+    .navlinks{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      flex-wrap: wrap;
+      justify-content:flex-end;
+    }
+    .pill{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding: 9px 12px;
+      border-radius:999px;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,.06);
+      text-decoration:none;
+      color: var(--text);
+      font-weight: 620;
+      font-size: .9rem;
+      transition: transform .12s ease, background .12s ease, border-color .12s ease;
+    }
+    .pill:hover{ transform: translateY(-1px); background: rgba(255,255,255,.09); border-color: rgba(255,255,255,.18); }
+
+    /* Layout */
+    .grid{
+      display:grid;
+      grid-template-columns: 1.25fr .95fr;
+      gap: 18px;
+      margin-top: 18px;
+      align-items:start;
+    }
+    @media (max-width: 980px){
+      .grid{ grid-template-columns: 1fr; }
+    }
+
+    .panel{
+      border: 1px solid var(--line);
+      background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.04));
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow:hidden;
+    }
+    .panelHead{
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--line);
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+    }
+    .panelHead .title{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      font-weight: 760;
+      letter-spacing:.2px;
+    }
+    .badge{
+      font-size: .82rem;
+      color: var(--muted);
+      padding: 4px 9px;
+      border-radius: 999px;
+      border:1px solid var(--line);
+      background: rgba(255,255,255,.05);
+      white-space:nowrap;
+    }
+
+    /* Board */
+    .boardWrap{
+      display:flex;
+      gap: 14px;
+      padding: 14px;
+      align-items:center;
+      justify-content:center;
+    }
+    .board{
+      display:grid;
+      grid-template-columns: repeat(8, var(--square));
+      grid-template-rows: repeat(8, var(--square));
+      border-radius: 16px;
+      overflow:hidden;
+      box-shadow: 0 20px 45px rgba(0,0,0,.45);
+      border: 1px solid rgba(255,255,255,.12);
+      background: rgba(0,0,0,.15);
+    }
+    .sq{
+      position:relative;
+      width: var(--square);
+      height: var(--square);
+      border: none;
+      padding:0;
+      cursor:pointer;
+      display:grid;
+      place-items:center;
+      outline:none;
+      user-select:none;
+    }
+    .sq.light{ background: linear-gradient(180deg, rgba(255,255,255,.92), rgba(230,235,246,.95)); }
+    .sq.dark{  background: linear-gradient(180deg, rgba(184,196,221,.95), rgba(165,178,206,.95)); }
+    .sq:focus-visible{ box-shadow: inset 0 0 0 3px rgba(255,224,138,.85); z-index:2; }
+
+    .sq.selected{
+      box-shadow: inset 0 0 0 4px rgba(255,224,138,.95);
+      z-index:2;
+    }
+    .sq.lastFrom, .sq.lastTo{
+      box-shadow: inset 0 0 0 4px rgba(26,92,255,.35);
+    }
+    .sq.inCheck{
+      box-shadow: inset 0 0 0 4px rgba(255,59,94,.55);
+      z-index:2;
+    }
+
+    /* Move dots */
+    .dotMove{
+      position:absolute;
+      width: 14px;
+      height: 14px;
+      border-radius:999px;
+      background: rgba(15,23,42,.25);
+      box-shadow: inset 0 0 0 2px rgba(15,23,42,.25);
+    }
+    .ringCap{
+      position:absolute;
+      width: calc(var(--square) - 10px);
+      height: calc(var(--square) - 10px);
+      border-radius:999px;
+      border: 4px solid rgba(15,23,42,.22);
+      box-shadow: inset 0 0 0 2px rgba(255,224,138,.30);
+    }
+
+    /* Piece */
+    .piece{
+      width: calc(var(--square) - 10px);
+      height: calc(var(--square) - 10px);
+      display:grid;
+      place-items:center;
+      transform: translateY(-1px);
+      filter: drop-shadow(0 10px 14px rgba(0,0,0,.25));
+    }
+    .piece svg{ width: 100%; height: 100%; }
+    .blue{ color: var(--byu2); }
+    .red{  color: var(--ute2); }
+
+    /* HUD */
+    .hud{
+      padding: 14px 16px 16px;
+    }
+    .row2{
+      display:flex;
+      gap:12px;
+      flex-wrap:wrap;
+      align-items:center;
+      justify-content:space-between;
+    }
+    .scoreStrip{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:center;
+    }
+
+    .teamTag{
+      display:flex;
+      align-items:center;
+      gap:8px;
+      padding: 7px 10px;
+      border-radius:999px;
+      border:1px solid var(--line);
+      background: rgba(255,255,255,.05);
+      font-weight: 700;
+      font-size:.9rem;
+    }
+    .swatch{
+      width:12px;height:12px;border-radius:999px;
+    }
+    .swatch.b{ background: linear-gradient(135deg, var(--byu2), rgba(26,92,255,.55)); }
+    .swatch.r{ background: linear-gradient(135deg, var(--ute2), rgba(255,59,94,.55)); }
+
+    .status{
+      margin-top: 10px;
+      padding: 10px 12px;
+      border-radius: 14px;
+      border:1px solid var(--line);
+      background: rgba(255,255,255,.05);
+      color: var(--muted);
+      line-height: 1.25rem;
+    }
+
+    /* Controls */
+    .controls{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+      margin-top: 12px;
+    }
+    .btn{
+      border:1px solid var(--line);
+      background: rgba(255,255,255,.06);
+      color: var(--text);
+      padding: 9px 12px;
+      border-radius: 14px;
+      font-weight: 700;
+      cursor:pointer;
+      transition: transform .12s ease, background .12s ease, border-color .12s ease;
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+    }
+    .btn:hover{ transform: translateY(-1px); background: rgba(255,255,255,.10); border-color: rgba(255,255,255,.18); }
+    .btn.primary{
+      background: linear-gradient(135deg, rgba(26,92,255,.35), rgba(14,165,233,.18));
+      border-color: rgba(26,92,255,.45);
+    }
+    .btn.danger{
+      background: linear-gradient(135deg, rgba(255,59,94,.26), rgba(176,18,43,.18));
+      border-color: rgba(255,59,94,.35);
+    }
+    .toggle{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      padding: 9px 12px;
+      border-radius: 14px;
+      border:1px solid var(--line);
+      background: rgba(255,255,255,.05);
+      font-weight: 700;
+      color: var(--text);
+      user-select:none;
+    }
+    .toggle input{ width: 18px; height: 18px; accent-color: var(--byu2); }
+
+    /* Moves list */
+    .moves{
+      padding: 0 16px 16px;
+    }
+    .moves ol{
+      margin: 10px 0 0;
+      padding-left: 18px;
+      color: var(--muted);
+      max-height: 360px;
+      overflow:auto;
+    }
+    .moves li{
+      margin: 6px 0;
+      font-size:.95rem;
+      line-height: 1.2rem;
+    }
+
+    /* Momentum */
+    .momentum{
+      margin-top: 12px;
+      border:1px solid var(--line);
+      background: rgba(255,255,255,.05);
+      border-radius: 16px;
+      padding: 12px;
+    }
+    .momHead{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:10px;
+      margin-bottom: 8px;
+      color: var(--muted);
+      font-weight: 700;
+      font-size:.9rem;
+    }
+    .bar{
+      width: 100%;
+      height: 12px;
+      border-radius: 999px;
+      background: rgba(0,0,0,.25);
+      overflow:hidden;
+      border:1px solid rgba(255,255,255,.10);
+      position:relative;
+    }
+    .bar .fillB{
+      height:100%;
+      width:50%;
+      background: linear-gradient(90deg, rgba(26,92,255,.95), rgba(14,165,233,.85));
+    }
+    .bar .fillR{
+      height:100%;
+      width:50%;
+      background: linear-gradient(90deg, rgba(255,59,94,.85), rgba(176,18,43,.95));
+      position:absolute;
+      right:0;
+      top:0;
+    }
+
+    /* Promotion modal */
+    .modalBackdrop{
+      position:fixed;
+      inset:0;
+      display:none;
+      align-items:center;
+      justify-content:center;
+      background: rgba(0,0,0,.55);
+      z-index: 50;
+      padding: 18px;
+    }
+    .modal{
+      width:min(560px, 96vw);
+      border-radius: 18px;
+      border:1px solid rgba(255,255,255,.16);
+      background: linear-gradient(180deg, rgba(255,255,255,.10), rgba(255,255,255,.06));
+      box-shadow: 0 24px 70px rgba(0,0,0,.55);
+      padding: 16px;
+    }
+    .modal h3{
+      margin: 0 0 6px;
+      font-size: 1.05rem;
+      letter-spacing:.2px;
+    }
+    .modal p{ margin: 0 0 12px; color: var(--muted); }
+    .promoGrid{
+      display:grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+    }
+    .promoBtn{
+      border:1px solid var(--line);
+      background: rgba(255,255,255,.06);
+      border-radius: 16px;
+      padding: 10px;
+      cursor:pointer;
+      transition: transform .12s ease, background .12s ease, border-color .12s ease;
+      display:grid;
+      place-items:center;
+      gap: 8px;
+      color: var(--text);
+      font-weight: 800;
+    }
+    .promoBtn:hover{ transform: translateY(-1px); background: rgba(255,255,255,.10); border-color: rgba(255,255,255,.18); }
+    .promoBtn .mini{
+      width: 54px; height: 54px;
+      filter: drop-shadow(0 10px 14px rgba(0,0,0,.25));
+    }
+
+    /* Small helper text */
+    .hint{
+      color: var(--muted);
+      font-size:.9rem;
+      margin-top: 10px;
+      line-height: 1.25rem;
+    }
+    .kbd{
+      display:inline-block;
+      padding: 2px 8px;
+      border-radius: 10px;
+      border:1px solid var(--line);
+      background: rgba(255,255,255,.06);
+      font-weight: 800;
+      color: var(--text);
+      font-size:.86rem;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="wrap">
+    <header class="topbar">
+      <div class="brand">
+        <div class="dot" aria-hidden="true"></div>
+        <div>
+          <h1>Holy War Chess</h1>
+          <div class="sub">BYU (Blue) vs Utah (Red) — single-page web app</div>
+        </div>
+      </div>
+
+      <nav class="navlinks" aria-label="Site">
+        <a class="pill" href="index.html" title="Go to resume page">Resume</a>
+        <a class="pill" href="scratch.html" title="Go to scratch page">Scratch</a>
+        <a class="pill" href="#howto" title="How to play">How to Play</a>
+      </nav>
+    </header>
+
+    <div class="grid">
+      <!-- LEFT: BOARD -->
+      <section class="panel" aria-label="Chess board">
+        <div class="panelHead">
+          <div class="title">
+            <span class="badge">BYU plays from bottom</span>
+            <span class="badge" id="modeBadge">Two-player</span>
+          </div>
+          <span class="badge" id="turnBadge">Turn: BYU (Blue)</span>
+        </div>
+
+        <div class="boardWrap">
+          <div class="board" id="board" role="grid" aria-label="Chessboard"></div>
+        </div>
+
+        <div class="hud">
+          <div class="row2">
+            <div class="scoreStrip">
+              <div class="teamTag" title="BYU (Blue)">
+                <span class="swatch b" aria-hidden="true"></span> BYU
+                <span class="badge" id="byuScore">0</span>
+              </div>
+              <div class="teamTag" title="Utah (Red)">
+                <span class="swatch r" aria-hidden="true"></span> UTAH
+                <span class="badge" id="uteScore">0</span>
+              </div>
+            </div>
+            <div class="badge" id="callout">Kickoff!</div>
+          </div>
+
+          <div class="momentum" aria-label="Momentum meter">
+            <div class="momHead">
+              <span>Momentum (captures)</span>
+              <span id="momText">BYU 0 — 0 Utah</span>
+            </div>
+            <div class="bar" aria-hidden="true">
+              <div class="fillB" id="momB" style="width:50%"></div>
+              <div class="fillR" id="momR" style="width:50%"></div>
+            </div>
+          </div>
+
+          <div class="status" id="status">
+            Click a piece to see legal moves. Click a highlighted square to move.
+          </div>
+
+          <div class="controls no-print">
+            <button class="btn primary" id="newBtn">New Game</button>
+            <button class="btn" id="undoBtn" title="Undo last move">Undo</button>
+            <label class="toggle" title="If on, Utah (Red) plays automatically">
+              <input type="checkbox" id="botToggle" />
+              Play vs Utah Bot
+            </label>
+            <label class="toggle" title="Subtle sound effects (no music)">
+              <input type="checkbox" id="soundToggle" checked />
+              Crowd Sounds
+            </label>
+          </div>
+
+          <div class="hint" id="howto">
+            <strong>How to play:</strong>
+            BYU is <span class="kbd">Blue</span> and moves first. Utah is <span class="kbd">Red</span>.
+            This is real chess: castling, en passant, and promotions are supported.
+          </div>
+        </div>
+      </section>
+
+      <!-- RIGHT: MOVES + LEGEND -->
+      <aside class="panel" aria-label="Game info">
+        <div class="panelHead">
+          <div class="title">Game Log</div>
+          <span class="badge" id="resultBadge">In progress</span>
+        </div>
+
+        <div class="moves">
+          <div class="hint" style="margin-top:10px;">
+            <strong>Legend:</strong> Captures add momentum and trigger rivalry reactions.
+            If you toggle the bot, Utah will respond automatically on its turns.
+          </div>
+          <ol id="moveList"></ol>
+        </div>
+
+        <div class="moves" style="padding-top:0;">
+          <div class="card" style="border:1px solid var(--line); background:rgba(255,255,255,.05); border-radius:16px; padding:12px;">
+            <div style="font-weight:800; margin-bottom:6px;">BYU/Utah Piece Style</div>
+            <div style="color:var(--muted); line-height:1.25rem;">
+              Pieces are custom SVG tokens: crowns, towers, bishops, knights, and pawns —
+              colored as BYU blue vs Utah red for the Holy War theme.
+            </div>
+          </div>
+        </div>
+      </aside>
+    </div>
+  </div>
+
+  <!-- Promotion Modal -->
+  <div class="modalBackdrop" id="promoBackdrop" role="dialog" aria-modal="true" aria-label="Promotion">
+    <div class="modal">
+      <h3>Promotion</h3>
+      <p id="promoText">Choose a piece to promote to.</p>
+      <div class="promoGrid" id="promoGrid"></div>
+    </div>
+  </div>
+
+<script>
+/* =========================================================
+   HOLY WAR CHESS — Single-file app
+   BYU = blue (bottom, moves "up"), UTAH = red (top, moves "down")
+   Supports: legal moves, check/checkmate/stalemate, castling,
+             en passant, promotion picker, undo, simple bot.
+   ========================================================= */
+
+(() => {
+  // ----------------- Utilities -----------------
+  const $ = (id) => document.getElementById(id);
+
+  const PIECE_VALUE = { p:1, n:3, b:3, r:5, q:9, k:1000 };
+
+  const byuPhrases = [
+    "Cougars strike!",
+    "Royal blue momentum!",
+    "That’s a LaVell-level move.",
+    "BYU takes the lead in the trenches!",
+    "Nice conversion—first down!",
+  ];
+  const utePhrases = [
+    "Utes answer back!",
+    "Crimson counterpunch!",
+    "Utah brings the heat.",
+    "Big stop by the Utes!",
+    "That’s rivalry energy.",
+  ];
+  const neutralPhrases = [
+    "Kickoff!",
+    "The crowd is loud!",
+    "Defense tightens.",
+    "This one’s getting spicy.",
+    "Chess… but make it Holy War.",
+  ];
+
+  function rand(arr){ return arr[Math.floor(Math.random()*arr.length)] }
+
+  function deepCopyBoard(b){
+    return b.map(row => row.map(cell => cell ? ({...cell}) : null));
+  }
+
+  function inBounds(r,c){ return r>=0 && r<8 && c>=0 && c<8; }
+
+  function squareName(r,c){
+    // r=0 is rank 8, c=0 is file a
+    return "abcdefgh"[c] + (8 - r);
+  }
+
+  // ----------------- SVG Pieces -----------------
+  // One SVG template; we vary inner glyph path by type.
+  function pieceSVG(type){
+    // Outer coin + inner silhouette (simple, clean shapes)
+    const inner = {
+      p: `<path d="M32 22c0-5 4-9 9-9s9 4 9 9c0 4-2 7-5 8v6h6c2 0 3 1 3 3v14c0 2-1 3-3 3H33c-2 0-3-1-3-3V39c0-2 1-3 3-3h6v-6c-3-1-5-4-5-8z" fill="currentColor" opacity="0.95"/>`,
+      n: `<path d="M26 58V44c0-8 7-14 15-14 3 0 6 1 9 2l-3 5c-2-1-4-2-6-2-5 0-9 4-9 9v8h8l6-10 6 4-8 12H26z" fill="currentColor" opacity="0.95"/>
+          <path d="M52 24c0 4-3 7-7 7s-7-3-7-7 3-7 7-7 7 3 7 7z" fill="currentColor" opacity="0.95"/>`,
+      b: `<path d="M41 20c6 0 11 5 11 11 0 5-3 9-7 10l6 12H31l6-12c-4-1-7-5-7-10 0-6 5-11 11-11z" fill="currentColor" opacity="0.95"/>
+          <path d="M41 28l4 4-4 4-4-4 4-4z" fill="#0b1220" opacity="0.35"/>`,
+      r: `<path d="M28 26h26v10h-4v22H32V36h-4V26z" fill="currentColor" opacity="0.95"/>
+          <path d="M30 20h6v6h-6v-6zm10 0h6v6h-6v-6zm10 0h6v6h-6v-6z" fill="currentColor" opacity="0.95"/>`,
+      q: `<path d="M29 56l4-26 8 12 8-12 4 26H29z" fill="currentColor" opacity="0.95"/>
+          <path d="M28 26c0-3 2-5 5-5s5 2 5 5-2 5-5 5-5-2-5-5zm16 0c0-3 2-5 5-5s5 2 5 5-2 5-5 5-5-2-5-5zm-8-6c0-3 2-5 5-5s5 2 5 5-2 5-5 5-5-2-5-5z" fill="currentColor" opacity="0.95"/>`,
+      k: `<path d="M39 18h4v8h8v4h-8v8h-4v-8h-8v-4h8v-8z" fill="currentColor" opacity="0.95"/>
+          <path d="M31 58V43c0-6 5-11 11-11s11 5 11 11v15H31z" fill="currentColor" opacity="0.95"/>`,
+    }[type];
+
+    return `
+      <svg viewBox="0 0 82 82" aria-hidden="true">
+        <defs>
+          <radialGradient id="g" cx="30%" cy="25%" r="70%">
+            <stop offset="0%" stop-color="rgba(255,255,255,.35)"/>
+            <stop offset="60%" stop-color="rgba(255,255,255,.12)"/>
+            <stop offset="100%" stop-color="rgba(0,0,0,.18)"/>
+          </radialGradient>
+        </defs>
+        <circle cx="41" cy="41" r="36" fill="url(#g)"/>
+        <circle cx="41" cy="41" r="36" fill="transparent" stroke="rgba(255,255,255,.28)" stroke-width="2"/>
+        <g transform="translate(0,0)">${inner}</g>
+      </svg>
+    `;
+  }
+
+  // ----------------- Game State -----------------
+  const state = {
+    board: null,
+    turn: "blue",             // "blue" or "red"
+    selected: null,           // {r,c}
+    legal: [],                // list of moves for selected
+    history: [],              // stack of snapshots
+    lastMove: null,           // {from:{r,c}, to:{r,c}}
+    enPassant: null,          // {r,c} target square
+    castling: { blue:{K:true,Q:true}, red:{K:true,Q:true} },
+    halfmove: 0,
+    fullmove: 1,
+    bot: false,
+    sound: true,
+    momentum: { blue:0, red:0 },  // capture points
+    score: { blue:0, red:0 },     // captured piece value total
+    gameOver: false,
+  };
+
+  function initBoard(){
+    const empty = Array.from({length:8}, ()=>Array(8).fill(null));
+    // Place pieces like chess
+    const back = ["r","n","b","q","k","b","n","r"];
+    for(let c=0;c<8;c++){
+      empty[0][c] = {type:back[c], color:"red", moved:false};
+      empty[1][c] = {type:"p", color:"red", moved:false};
+      empty[6][c] = {type:"p", color:"blue", moved:false};
+      empty[7][c] = {type:back[c], color:"blue", moved:false};
+    }
+    state.board = empty;
+    state.turn = "blue";
+    state.selected = null;
+    state.legal = [];
+    state.history = [];
+    state.lastMove = null;
+    state.enPassant = null;
+    state.castling = { blue:{K:true,Q:true}, red:{K:true,Q:true} };
+    state.halfmove = 0;
+    state.fullmove = 1;
+    state.momentum = { blue:0, red:0 };
+    state.score = { blue:0, red:0 };
+    state.gameOver = false;
+    $("moveList").innerHTML = "";
+    setCallout(rand(neutralPhrases));
+    updateHUD();
+    render();
+  }
+
+  // ----------------- Rendering -----------------
+  function render(){
+    const boardEl = $("board");
+    boardEl.innerHTML = "";
+
+    for(let r=0;r<8;r++){
+      for(let c=0;c<8;c++){
+        const isLight = (r+c)%2===0;
+        const btn = document.createElement("button");
+        btn.className = `sq ${isLight ? "light":"dark"}`;
+        btn.setAttribute("role","gridcell");
+        btn.setAttribute("aria-label", squareName(r,c));
+        btn.dataset.r = r;
+        btn.dataset.c = c;
+
+        // last move highlight
+        if(state.lastMove){
+          const {from,to} = state.lastMove;
+          if(from.r===r && from.c===c) btn.classList.add("lastFrom");
+          if(to.r===r && to.c===c) btn.classList.add("lastTo");
+        }
+
+        // selected highlight
+        if(state.selected && state.selected.r===r && state.selected.c===c){
+          btn.classList.add("selected");
+        }
+
+        // in check highlight
+        const kpos = findKing(state.board, state.turn);
+        if(kpos && kpos.r===r && kpos.c===c && isInCheck(state.board, state.turn)){
+          btn.classList.add("inCheck");
+        }
+
+        // legal move markers
+        if(state.selected){
+          const move = state.legal.find(m => m.to.r===r && m.to.c===c);
+          if(move){
+            if(move.capture){
+              const ring = document.createElement("div");
+              ring.className = "ringCap";
+              btn.appendChild(ring);
+            }else{
+              const dot = document.createElement("div");
+              dot.className = "dotMove";
+              btn.appendChild(dot);
+            }
+          }
+        }
+
+        // piece
+        const p = state.board[r][c];
+        if(p){
+          const wrap = document.createElement("div");
+          wrap.className = `piece ${p.color}`;
+          wrap.innerHTML = pieceSVG(p.type);
+          btn.appendChild(wrap);
+        }
+
+        btn.addEventListener("click", onSquareClick);
+        boardEl.appendChild(btn);
+      }
+    }
+  }
+
+  function updateHUD(){
+    $("turnBadge").textContent = `Turn: ${state.turn === "blue" ? "BYU (Blue)" : "UTAH (Red)"}`;
+    $("modeBadge").textContent = state.bot ? "Utah Bot" : "Two-player";
+    $("byuScore").textContent = String(state.score.blue);
+    $("uteScore").textContent = String(state.score.red);
+
+    // momentum meter
+    const b = state.momentum.blue;
+    const r = state.momentum.red;
+    const total = Math.max(1, b + r);
+    const bPct = Math.max(10, Math.min(90, Math.round((b/total)*100)));
+    const rPct = 100 - bPct;
+    $("momB").style.width = bPct + "%";
+    $("momR").style.width = rPct + "%";
+    $("momText").textContent = `BYU ${b} — ${r} Utah`;
+
+    // result badge
+    $("resultBadge").textContent = state.gameOver ? "Game over" : "In progress";
+  }
+
+  function setStatus(msg){ $("status").textContent = msg; }
+  function setCallout(msg){ $("callout").textContent = msg; }
+
+  // ----------------- Input Handling -----------------
+  function onSquareClick(e){
+    if(state.gameOver) return;
+
+    const r = Number(e.currentTarget.dataset.r);
+    const c = Number(e.currentTarget.dataset.c);
+    const clicked = state.board[r][c];
+
+    // If it's bot's turn, ignore clicks
+    if(state.bot && state.turn === "red") return;
+
+    // If we have a selection and clicked a legal destination => move
+    if(state.selected){
+      const m = state.legal.find(x => x.to.r===r && x.to.c===c);
+      if(m){
+        makeMove(m);
+        return;
+      }
+    }
+
+    // Otherwise, select if it's your piece
+    if(clicked && clicked.color === state.turn){
+      state.selected = {r,c};
+      state.legal = legalMovesFor(state.board, r, c, state.turn);
+      const pName = pieceName(clicked.type);
+      setStatus(`${state.turn === "blue" ? "BYU" : "UTAH"} selected ${pName}. Choose a highlighted square.`);
+      render();
+      return;
+    }
+
+    // Deselect
+    state.selected = null;
+    state.legal = [];
+    setStatus("Click a piece to see legal moves.");
+    render();
+  }
+
+  // ----------------- Move Generation -----------------
+  function pieceName(t){
+    return ({p:"Pawn", n:"Knight", b:"Bishop", r:"Rook", q:"Queen", k:"King"})[t] || "Piece";
+  }
+
+  function findKing(board, color){
+    for(let r=0;r<8;r++){
+      for(let c=0;c<8;c++){
+        const p = board[r][c];
+        if(p && p.type==="k" && p.color===color) return {r,c};
+      }
+    }
+    return null;
+  }
+
+  function isSquareAttacked(board, tr, tc, byColor){
+    // Pawn attacks
+    const dir = byColor === "blue" ? -1 : 1;
+    const pawnRows = tr - dir; // reverse to find attackers
+    for(const dc of [-1,1]){
+      const r = pawnRows;
+      const c = tc + dc;
+      if(inBounds(r,c)){
+        const p = board[r][c];
+        if(p && p.color===byColor && p.type==="p") return true;
+      }
+    }
+
+    // Knights
+    const kOffsets = [[-2,-1],[-2,1],[-1,-2],[-1,2],[1,-2],[1,2],[2,-1],[2,1]];
+    for(const [dr,dc] of kOffsets){
+      const r = tr+dr, c = tc+dc;
+      if(inBounds(r,c)){
+        const p = board[r][c];
+        if(p && p.color===byColor && p.type==="n") return true;
+      }
+    }
+
+    // Sliders: bishop/rook/queen
+    const lines = [
+      {dirs:[[-1,-1],[-1,1],[1,-1],[1,1]], types:new Set(["b","q"])},
+      {dirs:[[-1,0],[1,0],[0,-1],[0,1]], types:new Set(["r","q"])},
+    ];
+    for(const group of lines){
+      for(const [dr,dc] of group.dirs){
+        let r=tr+dr, c=tc+dc;
+        while(inBounds(r,c)){
+          const p = board[r][c];
+          if(p){
+            if(p.color===byColor && group.types.has(p.type)) return true;
+            break;
+          }
+          r+=dr; c+=dc;
+        }
+      }
+    }
+
+    // King adjacency
+    for(let dr=-1;dr<=1;dr++){
+      for(let dc=-1;dc<=1;dc++){
+        if(dr===0 && dc===0) continue;
+        const r=tr+dr,c=tc+dc;
+        if(inBounds(r,c)){
+          const p = board[r][c];
+          if(p && p.color===byColor && p.type==="k") return true;
+        }
+      }
+    }
+
+    return false;
+  }
+
+  function isInCheck(board, color){
+    const k = findKing(board, color);
+    if(!k) return false;
+    const opp = color === "blue" ? "red" : "blue";
+    return isSquareAttacked(board, k.r, k.c, opp);
+  }
+
+  function pseudoMoves(board, r, c, color, opts = {}){
+    const p = board[r][c];
+    if(!p) return [];
+    const type = p.type;
+    const moves = [];
+    const opp = color === "blue" ? "red" : "blue";
+
+    const push = (toR,toC, extra={})=>{
+      const target = board[toR][toC];
+      moves.push({
+        from:{r,c},
+        to:{r:toR,c:toC},
+        piece:type,
+        color,
+        capture: !!target || !!extra.enPassantCapture,
+        captured: target ? target.type : (extra.enPassantCapture ? "p" : null),
+        ...extra
+      });
+    };
+
+    if(type==="p"){
+      const dir = color==="blue" ? -1 : 1;
+      const startRow = color==="blue" ? 6 : 1;
+      const promoRow = color==="blue" ? 0 : 7;
+
+      // Forward one
+      const r1 = r+dir;
+      if(inBounds(r1,c) && !board[r1][c]){
+        push(r1,c, {promotion: (r1===promoRow)});
+        // Forward two
+        const r2 = r+2*dir;
+        if(r===startRow && inBounds(r2,c) && !board[r2][c]){
+          push(r2,c, {doublePawn:true});
+        }
+      }
+
+      // Captures
+      for(const dc of [-1,1]){
+        const rr = r+dir, cc=c+dc;
+        if(inBounds(rr,cc)){
+          const t = board[rr][cc];
+          if(t && t.color===opp){
+            push(rr,cc, {promotion: (rr===promoRow)});
+          }
+        }
+      }
+
+      // En passant
+      if(state.enPassant){
+        const ep = state.enPassant;
+        if(Math.abs(ep.c - c)===1 && ep.r === r+dir){
+          // must be adjacent pawn of opponent at (r, ep.c)
+          const adj = board[r][ep.c];
+          if(adj && adj.type==="p" && adj.color===opp){
+            push(ep.r, ep.c, {enPassantCapture:true, epFrom:{r, c:ep.c}});
+          }
+        }
+      }
+
+      return moves;
+    }
+
+    if(type==="n"){
+      const offs = [[-2,-1],[-2,1],[-1,-2],[-1,2],[1,-2],[1,2],[2,-1],[2,1]];
+      for(const [dr,dc] of offs){
+        const rr=r+dr, cc=c+dc;
+        if(!inBounds(rr,cc)) continue;
+        const t=board[rr][cc];
+        if(!t || t.color===opp) push(rr,cc);
+      }
+      return moves;
+    }
+
+    if(type==="b" || type==="r" || type==="q"){
+      const dirs = [];
+      if(type==="b" || type==="q") dirs.push([-1,-1],[-1,1],[1,-1],[1,1]);
+      if(type==="r" || type==="q") dirs.push([-1,0],[1,0],[0,-1],[0,1]);
+      for(const [dr,dc] of dirs){
+        let rr=r+dr, cc=c+dc;
+        while(inBounds(rr,cc)){
+          const t=board[rr][cc];
+          if(!t){
+            push(rr,cc);
+          }else{
+            if(t.color===opp) push(rr,cc);
+            break;
+          }
+          rr+=dr; cc+=dc;
+        }
+      }
+      return moves;
+    }
+
+    if(type==="k"){
+      for(let dr=-1;dr<=1;dr++){
+        for(let dc=-1;dc<=1;dc++){
+          if(dr===0 && dc===0) continue;
+          const rr=r+dr, cc=c+dc;
+          if(!inBounds(rr,cc)) continue;
+          const t=board[rr][cc];
+          if(!t || t.color===opp) push(rr,cc);
+        }
+      }
+
+      // Castling
+      if(!p.moved && !opts.ignoreCastling){
+        // can castle only if not in check and squares not attacked
+        if(!isInCheck(board, color)){
+          const homeRow = (color==="blue") ? 7 : 0;
+
+          // King-side
+          if(state.castling[color].K){
+            const rook = board[homeRow][7];
+            if(rook && rook.type==="r" && rook.color===color && !rook.moved){
+              const empty1 = !board[homeRow][5];
+              const empty2 = !board[homeRow][6];
+              if(empty1 && empty2){
+                const oppColor = (color==="blue") ? "red" : "blue";
+                const safe = !isSquareAttacked(board, homeRow, 5, oppColor) && !isSquareAttacked(board, homeRow, 6, oppColor);
+                if(safe){
+                  push(homeRow, 6, {castle:"K"});
+                }
+              }
+            }
+          }
+
+          // Queen-side
+          if(state.castling[color].Q){
+            const rook = board[homeRow][0];
+            if(rook && rook.type==="r" && rook.color===color && !rook.moved){
+              const empty1 = !board[homeRow][1];
+              const empty2 = !board[homeRow][2];
+              const empty3 = !board[homeRow][3];
+              if(empty1 && empty2 && empty3){
+                const oppColor = (color==="blue") ? "red" : "blue";
+                const safe = !isSquareAttacked(board, homeRow, 3, oppColor) && !isSquareAttacked(board, homeRow, 2, oppColor);
+                if(safe){
+                  push(homeRow, 2, {castle:"Q"});
+                }
+              }
+            }
+          }
+        }
+      }
+
+      return moves;
+    }
+
+    return moves;
+  }
+
+  function legalMovesFor(board, r, c, color){
+    const candidates = pseudoMoves(board, r, c, color);
+    const legal = [];
+
+    for(const m of candidates){
+      const next = applyMoveToCopy(board, m);
+      if(!isInCheck(next.board, color)){
+        legal.push(m);
+      }
+    }
+    return legal;
+  }
+
+  function allLegalMoves(board, color){
+    const list = [];
+    for(let r=0;r<8;r++){
+      for(let c=0;c<8;c++){
+        const p = board[r][c];
+        if(p && p.color===color){
+          const moves = legalMovesFor(board, r, c, color);
+          for(const m of moves) list.push(m);
+        }
+      }
+    }
+    return list;
+  }
+
+  // ----------------- Apply Moves -----------------
+  function applyMoveToCopy(board, move){
+    const b = deepCopyBoard(board);
+    const from = move.from, to = move.to;
+    const moving = b[from.r][from.c];
+    const captured = b[to.r][to.c];
+
+    // Clear en passant capture
+    if(move.enPassantCapture && move.epFrom){
+      b[move.epFrom.r][move.epFrom.c] = null;
+    }
+
+    b[from.r][from.c] = null;
+    b[to.r][to.c] = moving ? ({...moving, moved:true}) : null;
+
+    // Castling rook move
+    if(move.castle && moving && moving.type==="k"){
+      const row = (moving.color==="blue") ? 7 : 0;
+      if(move.castle==="K"){
+        // rook h -> f
+        const rook = b[row][7];
+        b[row][7] = null;
+        b[row][5] = rook ? ({...rook, moved:true}) : null;
+      }else{
+        // rook a -> d
+        const rook = b[row][0];
+        b[row][0] = null;
+        b[row][3] = rook ? ({...rook, moved:true}) : null;
+      }
+    }
+
+    // Promotion placeholder (done later in real makeMove)
+    return { board: b, captured };
+  }
+
+  function makeMove(move){
+    // Save snapshot for undo
+    state.history.push(snapshot());
+
+    const {board:nextBoard, captured} = applyMoveToCopy(state.board, move);
+    state.board = nextBoard;
+
+    // Update en passant target
+    state.enPassant = null;
+    if(move.doublePawn){
+      const dir = (move.color==="blue") ? -1 : 1;
+      state.enPassant = { r: move.from.r + dir, c: move.from.c };
+    }
+
+    // Update castling rights if king/rook moved or rook captured
+    updateCastlingRights(move, captured);
+
+    // Update halfmove clock
+    const movedPiece = move.piece;
+    if(movedPiece==="p" || move.capture) state.halfmove = 0;
+    else state.halfmove++;
+
+    // Score/momentum on capture
+    if(move.capture){
+      const v = PIECE_VALUE[move.captured] || 0;
+      state.score[move.color] += v;
+      state.momentum[move.color] += v;
+      setCallout(move.color==="blue" ? rand(byuPhrases) : rand(utePhrases));
+      if(state.sound) sfxCapture(move.color);
+    }else{
+      setCallout(rand(neutralPhrases));
+      if(state.sound) sfxMove();
+    }
+
+    // Promotion: show picker if needed
+    if(move.promotion){
+      openPromotion(move.to.r, move.to.c, move.color);
+      // (Turn switch happens after promotion is chosen.)
+      state.lastMove = {from: move.from, to: move.to};
+      state.selected = null;
+      state.legal = [];
+      render();
+      updateHUD();
+      return;
+    }
+
+    finalizeTurn(move);
+  }
+
+  function updateCastlingRights(move, captured){
+    const color = move.color;
+    const opp = color==="blue" ? "red" : "blue";
+
+    // If king moved, lose both
+    if(move.piece==="k"){
+      state.castling[color].K = false;
+      state.castling[color].Q = false;
+    }
+    // If rook moved from its home squares, lose that side
+    if(move.piece==="r"){
+      const homeRow = (color==="blue") ? 7 : 0;
+      if(move.from.r===homeRow && move.from.c===0) state.castling[color].Q = false;
+      if(move.from.r===homeRow && move.from.c===7) state.castling[color].K = false;
+    }
+    // If rook captured on its home squares, lose that side for opponent
+    if(captured && captured.type==="r"){
+      const homeRow = (opp==="blue") ? 7 : 0;
+      if(move.to.r===homeRow && move.to.c===0) state.castling[opp].Q = false;
+      if(move.to.r===homeRow && move.to.c===7) state.castling[opp].K = false;
+    }
+  }
+
+  function finalizeTurn(move){
+    // Log notation
+    addMoveToList(move);
+
+    // Update last move / selection
+    state.lastMove = {from: move.from, to: move.to};
+    state.selected = null;
+    state.legal = [];
+
+    // Switch turn
+    state.turn = (state.turn==="blue") ? "red" : "blue";
+    if(state.turn==="blue") state.fullmove++;
+
+    // Determine game result
+    const oppMoves = allLegalMoves(state.board, state.turn);
+    const check = isInCheck(state.board, state.turn);
+
+    if(oppMoves.length===0){
+      state.gameOver = true;
+      if(check){
+        const winner = (state.turn==="blue") ? "UTAH (Red)" : "BYU (Blue)";
+        $("resultBadge").textContent = `Checkmate — ${winner} wins`;
+        setStatus(`CHECKMATE! ${winner} wins the Holy War on the board.`);
+        setCallout("Final whistle!");
+        if(state.sound) sfxWin();
+      }else{
+        $("resultBadge").textContent = "Stalemate";
+        setStatus("Stalemate! No legal moves, but not in check.");
+        setCallout("Overtime ends… tie!");
+      }
+    }else{
+      if(check){
+        setStatus(`Check on ${state.turn==="blue" ? "BYU" : "UTAH"}! Defend the king.`);
+        setCallout("The crowd ROARS — CHECK!");
+        if(state.sound) sfxCheck();
+      }else{
+        setStatus(`Turn: ${state.turn==="blue" ? "BYU (Blue)" : "UTAH (Red)"} — make your move.`);
+      }
+    }
+
+    updateHUD();
+    render();
+
+    // Bot plays if enabled and it's red's turn
+    if(!state.gameOver && state.bot && state.turn==="red"){
+      window.setTimeout(botMove, 450);
+    }
+  }
+
+  // ----------------- Move Notation (simple) -----------------
+  function addMoveToList(move){
+    const list = $("moveList");
+    const moveText = formatMove(move);
+    const li = document.createElement("li");
+    li.textContent = moveText;
+    list.appendChild(li);
+    list.scrollTop = list.scrollHeight;
+  }
+
+  function formatMove(m){
+    const pieceLetter = (m.piece==="p") ? "" : m.piece.toUpperCase();
+    const capture = m.capture ? "x" : "–";
+    const from = squareName(m.from.r, m.from.c);
+    const to = squareName(m.to.r, m.to.c);
+
+    if(m.castle==="K") return "O-O (castle)";
+    if(m.castle==="Q") return "O-O-O (castle)";
+
+    let extra = "";
+    if(m.enPassantCapture) extra = " e.p.";
+    if(m.promotion) extra = " =?";
+    return `${pieceLetter}${from}${capture}${to}${extra}`;
+  }
+
+  // ----------------- Promotion -----------------
+  let pendingPromotion = null;
+
+  function openPromotion(r,c,color){
+    pendingPromotion = { r,c,color };
+    const backdrop = $("promoBackdrop");
+    const grid = $("promoGrid");
+    grid.innerHTML = "";
+    $("promoText").textContent = `${color==="blue" ? "BYU" : "UTAH"} pawn reached the end zone — choose promotion:`;
+
+    const options = ["q","r","b","n"];
+    for(const t of options){
+      const btn = document.createElement("button");
+      btn.className = "promoBtn";
+      btn.type = "button";
+      btn.innerHTML = `
+        <div class="mini ${color}">${pieceSVG(t)}</div>
+        <div>${pieceName(t)}</div>
+      `;
+      btn.addEventListener("click", () => pickPromotion(t));
+      grid.appendChild(btn);
+    }
+
+    backdrop.style.display = "flex";
+  }
+
+  function pickPromotion(type){
+    if(!pendingPromotion) return;
+    const {r,c,color} = pendingPromotion;
+    const p = state.board[r][c];
+    if(p && p.type==="p" && p.color===color){
+      state.board[r][c] = {...p, type, moved:true};
+    }
+
+    $("promoBackdrop").style.display = "none";
+    pendingPromotion = null;
+
+    // complete turn with a synthetic move record
+    // (we already applied pawn move; now just finalize turn)
+    finalizeTurn({
+      from: state.lastMove.from,
+      to: state.lastMove.to,
+      piece: "p",
+      color,
+      capture: false,
+      captured: null,
+      promotion: true
+    });
+  }
+
+  // ----------------- Undo / Snapshot -----------------
+  function snapshot(){
+    return {
+      board: deepCopyBoard(state.board),
+      turn: state.turn,
+      lastMove: state.lastMove ? JSON.parse(JSON.stringify(state.lastMove)) : null,
+      enPassant: state.enPassant ? {...state.enPassant} : null,
+      castling: JSON.parse(JSON.stringify(state.castling)),
+      halfmove: state.halfmove,
+      fullmove: state.fullmove,
+      momentum: {...state.momentum},
+      score: {...state.score},
+      gameOver: state.gameOver,
+      moveListHTML: $("moveList").innerHTML,
+      status: $("status").textContent,
+      result: $("resultBadge").textContent,
+      callout: $("callout").textContent,
+    };
+  }
+
+  function restore(snap){
+    state.board = deepCopyBoard(snap.board);
+    state.turn = snap.turn;
+    state.lastMove = snap.lastMove;
+    state.enPassant = snap.enPassant;
+    state.castling = snap.castling;
+    state.halfmove = snap.halfmove;
+    state.fullmove = snap.fullmove;
+    state.momentum = snap.momentum;
+    state.score = snap.score;
+    state.gameOver = snap.gameOver;
+
+    $("moveList").innerHTML = snap.moveListHTML;
+    setStatus(snap.status);
+    $("resultBadge").textContent = snap.result;
+    setCallout(snap.callout);
+
+    state.selected = null;
+    state.legal = [];
+    updateHUD();
+    render();
+  }
+
+  // ----------------- Bot (simple) -----------------
+  function botMove(){
+    if(state.gameOver || !state.bot || state.turn!=="red") return;
+
+    const moves = allLegalMoves(state.board, "red");
+    if(moves.length===0) return;
+
+    // Prefer captures with highest value; else prefer checks; else random
+    let best = [];
+    let bestScore = -Infinity;
+
+    for(const m of moves){
+      let score = 0;
+
+      if(m.capture){
+        score += (PIECE_VALUE[m.captured] || 0) * 10;
+      }
+
+      // If move gives check
+      const next = applyMoveToCopy(state.board, m).board;
+      if(isInCheck(next, "blue")) score += 6;
+
+      // Slight preference for developing minors early
+      if(m.piece==="n" || m.piece==="b") score += 1;
+
+      // Avoid hanging queen a bit (very light)
+      if(m.piece==="q") score -= 0.3;
+
+      if(score > bestScore){
+        bestScore = score;
+        best = [m];
+      }else if(score === bestScore){
+        best.push(m);
+      }
+    }
+
+    const chosen = best[Math.floor(Math.random()*best.length)];
+    makeMove(chosen);
+  }
+
+  // ----------------- Sounds (tiny WebAudio) -----------------
+  let audioCtx = null;
+  function beep(freq, dur, type="sine", gain=0.03){
+    if(!state.sound) return;
+    try{
+      if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      const t0 = audioCtx.currentTime;
+      const o = audioCtx.createOscillator();
+      const g = audioCtx.createGain();
+      o.type = type;
+      o.frequency.setValueAtTime(freq, t0);
+      g.gain.setValueAtTime(gain, t0);
+      g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+      o.connect(g); g.connect(audioCtx.destination);
+      o.start(t0);
+      o.stop(t0 + dur);
+    }catch(_){}
+  }
+  function sfxMove(){ beep(420, .07, "triangle", .028); }
+  function sfxCapture(color){
+    // blue = slightly brighter; red = slightly darker
+    const base = (color==="blue") ? 560 : 420;
+    beep(base, .08, "square", .03);
+    setTimeout(()=>beep(base*1.5, .06, "triangle", .02), 60);
+  }
+  function sfxCheck(){
+    beep(740, .08, "sawtooth", .03);
+    setTimeout(()=>beep(620, .10, "sawtooth", .02), 90);
+  }
+  function sfxWin(){
+    beep(523.25, .10, "triangle", .03);
+    setTimeout(()=>beep(659.25, .10, "triangle", .03), 120);
+    setTimeout(()=>beep(783.99, .14, "triangle", .03), 240);
+  }
+
+  // ----------------- Wire Buttons -----------------
+  $("newBtn").addEventListener("click", () => {
+    initBoard();
+    setStatus("New game! BYU kicks off (blue moves first).");
+  });
+
+  $("undoBtn").addEventListener("click", () => {
+    if(pendingPromotion) return; // avoid weird states
+    const snap = state.history.pop();
+    if(!snap){
+      setCallout("No replay available.");
+      return;
+    }
+    restore(snap);
+    setCallout("Replay: last play undone.");
+  });
+
+  $("botToggle").addEventListener("change", (e) => {
+    state.bot = e.target.checked;
+    updateHUD();
+    setCallout(state.bot ? "Utah bot is warmed up." : "Two-player mode.");
+    if(state.bot && !state.gameOver && state.turn==="red"){
+      setTimeout(botMove, 400);
+    }
+  });
+
+  $("soundToggle").addEventListener("change", (e) => {
+    state.sound = e.target.checked;
+    setCallout(state.sound ? "Crowd volume: ON" : "Crowd volume: OFF");
+  });
+
+  // Close promo if user clicks outside (optional)
+  $("promoBackdrop").addEventListener("click", (e) => {
+    if(e.target === $("promoBackdrop")) {
+      // force a queen if they click off, so the game continues
+      pickPromotion("q");
+    }
+  });
+
+  // ----------------- Start -----------------
+  initBoard();
+  setStatus("BYU (Blue) to move. Click a piece to highlight legal moves.");
+
+})();
+</script>
+</body>
+</html>
